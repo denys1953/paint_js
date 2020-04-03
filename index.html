@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+    <meta
+      name="viewport"
+      content="width=device-width, 	initial-scale=1, user-scalable=no"
+    />
+    <link
+      href="https://fonts.googleapis.com/	css?family=Roboto:300i,400&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/vue"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/	css?family=Caveat|Ubuntu:400,500,700&display=swap"
+      rel="<stylesheet>	</stylesheet>"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/	jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+  </head>
+  <body style="user-select: none;">
+    <canvas
+      style="
+        display: block;
+        position: relative;
+        position: absolute;
+        z-index: -1;
+        top: 0px;
+        left: 0px;
+      "
+      id="canvas"
+    >
+      <p>Ваш браузер не поддерживает рисование.</p>
+    </canvas>
+    <input
+      style="width: 300px;"
+      id="range"
+      type="range"
+      value="10"
+      min="1"
+      max="200"
+    />
+    <input
+      style="position: relative; z-index: 10; margin-right: 10px;"
+      id="inp"
+      type="color"
+    />
+    <button id="but">
+      <img
+        class="img"
+        style="
+          width: 32px;
+          height: 32px;
+          position: absolute;
+          top: 0;
+          margin-left: 30px;
+        "
+        src="img/Слой 1.png"
+        alt=""
+      />
+    </button>
+    <span
+      style="
+        position: absolute;
+        top: 0;
+        font-size: 20px;
+        margin-left: 200px;
+        margin-right: 10px;
+        border: 1px solid black;
+      "
+      >Press "C" to clear</span
+    >
+    <span
+      style="
+        position: absolute;
+        top: 0;
+        font-size: 20px;
+        margin-left: 400px;
+        margin-right: 10px;
+        border: 1px solid black;
+      "
+      >Press "S" to save</span
+    >
+    <span
+      style="
+        position: absolute;
+        top: 0;
+        font-size: 20px;
+        margin-left: 560px;
+        margin-right: 10px;
+        border: 1px solid black;
+      "
+      >Press "R" use</span
+    >
+    <script>
+      var canv = document.getElementById("canvas");
+      var ctx = canv.getContext("2d");
+      var isMouseDown = false;
+      var cords = [];
+
+      canv.width = innerWidth;
+      canv.height = innerHeight;
+
+      var inp = document.getElementById("inp");
+      var range = document.getElementById("range");
+
+      canv.addEventListener("mouseup", function () {
+        ctx.beginPath();
+        isMouseDown = false;
+        cords.push("mouseup");
+      });
+      canv.addEventListener("mousedown", function () {
+        isMouseDown = true;
+      });
+      function clearLocalst() {
+        localStorage.clear("cords");
+      }
+      function replay() {
+        var timer = setInterval(function () {
+          if (!cords.length) {
+            clearInterval(timer);
+            ctx.beginPath();
+            return;
+          }
+          var crd = cords.shift();
+          var e = {
+            clientX: crd["0"],
+            clientY: crd["1"],
+          };
+          ctx.lineTo(e.clientX, e.clientY);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(e.clientX, e.clientY, range.value, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(e.clientX, e.clientY);
+        }, 0.01);
+      }
+      function clear() {
+        ctx.clearRect(0, 0, canv.width, canv.height);
+      }
+      function save() {
+        localStorage.setItem("cords", JSON.stringify(cords));
+      }
+      document.addEventListener("keydown", function (e) {
+        console.log(e);
+        if (e.keyCode == 67) {
+          clear();
+        }
+        if (e.keyCode == 83) {
+          save();
+        }
+        if (e.keyCode == 81) {
+          clearLocalst();
+        }
+        if (e.keyCode == 82) {
+          cords = JSON.parse(localStorage.getItem("cords"));
+          clear();
+          replay();
+        }
+      });
+      canv.addEventListener("mousemove", function (e) {
+        ctx.strokeStyle = inp.value;
+        ctx.fillStyle = inp.value;
+        if (isMouseDown) {
+          cords.push([e.clientX, e.clientY]);
+          ctx.lineTo(e.clientX, e.clientY);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(e.clientX, e.clientY, range.value, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(e.clientX, e.clientY);
+        }
+        ctx.lineWidth = range.value * 2;
+      });
+      document.getElementById("but").onclick = function () {
+        inp.value = "#FFFFFF";
+        inp.value = "#FFFFFF";
+      };
+    </script>
+  </body>
+</html>
